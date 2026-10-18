@@ -1,6 +1,6 @@
 # LaunchBridge
 
-A focused, synthetic-data proof of concept for cross-functional launch readiness. Next.js App Router + TypeScript. No login, database, task duplication, or live credentials needed for the demo.
+A synthetic-data proof of concept to create a consolidated view of cross-functional launch readiness across different tools (Linear, Asana) for strategic projects such as market expansions and product launches. Next.js App Router + TypeScript. No login, database, task duplication, or live credentials needed for the demo.
 
 ## Run locally
 
@@ -12,11 +12,11 @@ A focused, synthetic-data proof of concept for cross-functional launch readiness
 
 ## Two-minute demonstration
 
-1. Point out that Engineering is sourced from Linear, other teams from Asana, and documentation from Notion (all mocked).
-2. Show the blocked scenario: Compliance regulatory sign-off is blocked, so overall launch is **Off track**.
-3. Switch to the resolved scenario: Compliance sign-off is complete and approved; overall launch becomes **At risk** because Engineering's smoke test and Support training remain incomplete and high priority.
-4. Click **Refresh readiness** and explain that it refetches all three adapters and recalculates readiness.
-5. Click **Copy Linear update** and paste the factual Markdown briefing.
+1. Engineering tasks are sourced from Linear, other teams' tasks (Compliance, Operations, Marketing) from Asana (all mocked).
+2. Blocked scenario: Compliance regulatory sign-off is blocked, so overall launch is **Off track**.
+3. Resolved scenario: Compliance sign-off is complete and approved; overall launch becomes **At risk** because Engineering's smoke test and Support training remain incomplete and high priority.
+4. Clicking on the **Refresh readiness** refetches all three adapters and recalculates readiness.
+  
 
 ## Readiness precedence
 
@@ -29,7 +29,7 @@ Team health applies the same rules to each team's tasks. Noncritical low-priorit
 
 ## Connecting test accounts, one adapter at a time
 
-**Before connecting:** make test projects in Linear and Asana, and a test Notion data source. Use synthetic tasks only. Never paste API keys into the chat or commit `.env.local`.
+**Before connecting:** make test projects in Linear and Asana. Use synthetic tasks only. Never paste API keys into the chat or commit `.env.local`.
 
 1. Copy `.env.example` to `.env.local`. Add only the token needed for the adapter you're implementing.
 2. **Linear:** create a personal API key with the least permissions available, note the test project ID, then replace `fetchLinearTasks` in `lib/adapters/linear.ts` with a server-side `POST https://api.linear.app/graphql` query. Map issue IDs, title, status, assignee, due date, URL, and labels to `Task`. Confirm the query against Linear's current schema before implementing it. Keep it read-only.
