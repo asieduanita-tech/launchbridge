@@ -4,6 +4,19 @@ LaunchBridge is a cross-functional launch readiness dashboard that consolidates 
 
 This public version recreates a tool I've developed and used at work, using synthetic data.
 
+
+## Dashboard Preview
+
+### Launch Overview
+![LaunchBridge overall launch readiness](screenshots/launch-overview.png)
+
+### Team Readiness
+![LaunchBridge team readiness](screenshots/team-readiness.png)
+
+### Outstanding Work
+![LaunchBridge cross-functional outstanding tasks](screenshots/outstanding-work.png)
+
+
 ## How It Works
 
 Strategic initiatives often involve multiple teams working across different project management tools. This makes it difficult to get a consolidated view of progress. It also makes it difficult to identify blockers and understand whether or not a launch is on track without jumping across different tools and tabs.
