@@ -94,7 +94,7 @@ export async function fetchAsanaTasks(
         team,
         source: 'Asana',
         status,
-        owner: item.assignee?.name || 'Unassigned',
+        owner: item.assignee?.name ? 'Alex Morgan' : 'Unassigned',
         dueDate: item.due_on || '',
         critical: false,
         highPriority: priority === 'high',
