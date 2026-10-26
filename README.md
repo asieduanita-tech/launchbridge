@@ -4,18 +4,21 @@ LaunchBridge is a cross-functional launch readiness dashboard that consolidates 
 
 This public version recreates a tool I've developed and used at work, using synthetic data.
 
+**[Open the live demo](https://launchbridge-three.vercel.app)** · [Demo walkthrough](#demo)
 
 ## Dashboard Preview
 
 ### Launch Overview
-![LaunchBridge overall launch readiness](screenshots/launch-overview.png)
+
+![LaunchBridge overall launch readiness](Launch%20Overview.png)
 
 ### Team Readiness
-![LaunchBridge team readiness](screenshots/team-readiness.png)
+
+![LaunchBridge team readiness](Team%20Readiness.png)
 
 ### Outstanding Work
-![LaunchBridge cross-functional outstanding tasks](screenshots/outstanding-work.png)
 
+![LaunchBridge cross-functional outstanding tasks](Tasks%20Outstanding.png)
 
 ## How It Works
 
@@ -38,14 +41,14 @@ LaunchBridge uses a rules-based assessment to classify launch readiness as **On 
 - **Backend:** Next.js server-side API routes
 - **Data processing:** Task normalization and rules-based readiness assessment
 - **Styling:** CSS
-- **Storage:** No database. Tasks are retrieved directly from connected platforms.
+- **Storage:** No database. Tasks come from mock fixtures or are retrieved directly from configured platforms.
 
 ## Run Locally
 
 1. Install Node.js 20 or later.
 2. Clone this repository.
 3. Run `npm install`.
-4. Copy `.env.example` to `.env.local` and configure the relevant integrations.
+4. Copy `.env.example` to `.env.local`. Keep `LINEAR_MODE=mock` and `ASANA_MODE=mock` to explore the synthetic scenarios without API credentials.
 5. Run `npm run dev`.
 6. Visit http://localhost:3000.
 
@@ -53,52 +56,65 @@ API credentials must remain in `.env.local` and should never be committed to Git
 
 ## Integrations
 
-**Linear**
+### Linear
 
 LaunchBridge connects to Linear through its GraphQL API to retrieve Engineering tasks from a specified project. The integration is read-only and supports pagination.
 
-**Asana**
+### Asana
 
 LaunchBridge connects to Asana through its REST API to retrieve tasks from a specified project, providing visibility into work managed outside Engineering.
 
+To connect a dedicated test project, set the corresponding mode to `live` and supply its API credential and project ID in `.env.local`. Linear uses `LINEAR_API_KEY` and `LINEAR_PROJECT_ID`; Asana uses `ASANA_ACCESS_TOKEN` and `ASANA_PROJECT_ID`. Live mode reads the configured test project; it does not mean the public demo contains production company data.
+
+Notion contributes mock documentation tasks in v1. Its live adapter is not yet implemented.
+
 ## Readiness Logic
 
-LaunchBridge applies the following rules to determine overall launch readiness:
+LaunchBridge applies these rules in order. The first matching rule determines readiness:
 
-1. **Unknown:** Required source data is missing, unavailable or more than 24 hours old.
-2.Off track: A critical task is blocked or has a rejected approval.
+| Status | Rule |
+| --- | --- |
+| **Unknown** | A source request fails, no tasks are available, or a task has a missing or invalid sync timestamp, is more than 24 hours old, or is timestamped more than one minute in the future. |
+| **Off track** | A critical task is blocked or has a rejected approval. |
+| **At risk** | A critical or high-priority task is incomplete, or a required critical approval is not yet approved. |
+| **On track** | All critical and high-priority tasks are complete, and required critical approvals are approved. |
 
-At risk: Critical or high-priority tasks remain incomplete, or a critical approval is pending.
+The same task-level rules are applied to each team. Source failures also mark affected teams as **Unknown**, making it possible to identify which workstreams are affecting overall readiness.
 
-On track: All critical and high-priority tasks are complete and required critical approvals are approved.
+## Demo
 
-The same logic is applied at team level, making it possible to identify which teams or workstreams are affecting overall readiness.
+### Two-minute dashboard walkthrough
 
-Demo
+1. Open the **[live demo](https://launchbridge-three.vercel.app)** to review the synthetic US market launch.
+2. Check **Overall launch health** and **Critical blockers**, then review **Team readiness** to see progress across Engineering, Compliance, Operations, Marketing and Support.
+3. Inspect **Launch-critical blockers** and **Outstanding work** for task owners, source tools and priority. Source links may require access to the dedicated test projects; mock links are placeholders.
+4. Read the **Launch briefing** and use **Copy Linear update** to copy the summary to your clipboard. This does not publish anything to Linear.
+5. Select **Refresh readiness** to retrieve current data from the configured sources and recalculate the assessment.
 
-The dashboard supports a simulated scenario demonstrating how launch readiness changes when a critical blocker is resolved.
+The dashboard requests the **resolved** scenario by default and has no scenario toggle. Its actual status depends on the configured source data.
 
-Blocked scenario: Compliance regulatory sign-off is blocked, resulting in an overall status of Off track.
+### Compare the simulated scenarios
 
-Resolved scenario: The Compliance blocker is resolved, but outstanding high-priority work keeps the overall status at At risk.
+For a reproducible local comparison, run the app with both integrations in `mock` mode, then open these JSON endpoints:
 
-Refresh readiness: Retrieves current task data from the configured sources and recalculates readiness.
+| Scenario | Local endpoint | Expected result with mock data |
+| --- | --- | --- |
+| Blocked | [`/api/readiness?scenario=blocked`](http://localhost:3000/api/readiness?scenario=blocked) | **Off track**: Compliance regulatory sign-off is blocked. |
+| Resolved | [`/api/readiness?scenario=resolved`](http://localhost:3000/api/readiness?scenario=resolved) | **At risk**: Compliance sign-off is complete and approved, but the production smoke test and Support training remain incomplete. |
 
-Scenario changes are for demonstration purposes and do not modify tasks in Linear or Asana.
+Compare the `health`, `blockers`, `outstanding` and `briefing` fields in each response. These endpoints return JSON; opening them does not switch the dashboard scenario.
 
-Current Limitations
+Scenario changes affect mock records only and do not modify tasks in Linear or Asana. When an integration is in live mode, it reads that project's actual test-task statuses, so the simulated results above are not guaranteed.
+
+## Current Limitations and Security
 
 LaunchBridge v1 is a demonstration of the underlying approach rather than a production deployment.
 
-Uses synthetic test data.
-
-
-Does not include user authentication or a database.
-
-Does not create, update or duplicate tasks in connected platforms.
-
-Publishing updates back to Linear is disabled.
-
-Does not yet include production-grade rate limiting, retry handling or persistent historical reporting.
+- Uses synthetic test data. This public version recreates a workplace tool without exposing company launch records.
+- Does not include user authentication or a database. Do not connect sensitive production projects to this public demonstration.
+- Does not create, update or duplicate tasks in connected platforms.
+- Publishing updates back to Linear is disabled; copying a briefing only writes to the clipboard.
+- API credentials remain server-side in `.env.local` or deployment environment variables and must never be committed to GitHub.
+- Does not yet include production-grade rate limiting, retry handling or persistent historical reporting.
 
 The focus of v1 is demonstrating how fragmented project data can be consolidated into actionable launch intelligence.
